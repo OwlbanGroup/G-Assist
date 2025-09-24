@@ -6,7 +6,7 @@
   "functions": [
     {
       "name": "query_gemini",
-      "description": "Support for general queries including but not limited to gaming wiki queries, weather, news, food, etc.",
+      "description": "Google/Gemini tool search for real time access of general topic queries including but not limited to gaming wiki queries, weather, news, food, etc.",
       "tags": ["gemini", "google", "chat", "question", "answers", "query", "knowledge", "queries"],
       "properties": {
         "input": {
