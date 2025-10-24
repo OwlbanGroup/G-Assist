@@ -1,0 +1,23 @@
+{
+  "manifestVersion": 1,
+  "executable": "g-assist-plugin-blackboxai.exe",
+  "persistent": false,
+  "passthrough": true,
+  "functions": [
+    {
+      "name": "query_blackboxai",
+      "description": "Blackbox AI tool for intelligent responses, coding assistance, and general AI queries within the G-Assist ecosystem.",
+      "tags": ["blackboxai", "blackbox", "ai", "chat", "question", "answers", "query", "knowledge", "coding", "programming"],
+      "properties": {
+        "input": {
+          "type": "string",
+          "description": "the user's input"
+        },
+        "game": {
+          "type": "string",
+          "description": "an optional parameter that specifies which game is currently being played"
+        }
+      }
+    }
+  ]
+}
