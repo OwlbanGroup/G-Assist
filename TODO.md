@@ -9,7 +9,7 @@
 - [x] Verify NVAPI compatibility with Blackwell GPUs (should be automatic)
 - [x] Update example responses to include Blackwell GPU models
 - [x] Check plugin examples for any GPU-specific code
-- [ ] Create Blackbox AI plugin for G-Assist
+- [x] Create Blackbox AI plugin for G-Assist
 
 ## Testing
 - [x] Test Python binding with Blackwell GPU (if available)
@@ -20,4 +20,4 @@
 ## Completion
 - [x] Ensure all references to RTX are updated to include Blackwell
 - [x] Validate integration works end-to-end
-- [ ] Add Blackbox AI to NVIDIA-Built G-Assist Plugins list
+- [x] Add Blackbox AI to NVIDIA-Built G-Assist Plugins list

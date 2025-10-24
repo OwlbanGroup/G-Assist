@@ -28,12 +28,14 @@ If you're looking for inspiration, check out our sample plugins for controling p
 Get started quickly using our Python bindings of the [C++ APIs](https://github.com/NVIDIA/nvapi/blob/main/nvapi.h#L25283):
 
 1. **Install the binding locally**
+
 ```bash
 cd api/bindings/python
 pip install .
 ```
 
 2. **Chat with G-Assist**
+
 ```python
 from rise import rise
 
@@ -47,6 +49,7 @@ print(f'Response: {response}')
 Response: Your GPU is an NVIDIA GeForce RTX 5090 with a Driver version of 572.83.
 """
 ```
+
 3. **Extend G-Assist**
 
 
@@ -67,6 +70,7 @@ Try these commands:
 ### Example Responses
 
 When a streamer is live:
+
 ```text
 ninja is LIVE!
 Title: Friday Fortnite!
@@ -76,6 +80,7 @@ Started At: 2024-03-14T12:34:56Z
 ```
 
 When a streamer is offline:
+
 ```
 ninja is OFFLINE
 ```
@@ -88,6 +93,7 @@ ninja is OFFLINE
 - Real-time stream status checking
 
 #### Project Structure
+
 ```
 plugins/twitch/
 ├── manifest.json        # Plugin configuration
@@ -95,6 +101,7 @@ plugins/twitch/
 ├── plugin.py            # Main plugin code
 └── requirements.txt     # Dependencies (requests)
 ```
+
 See our [Twitch Plugin Example Code](./plugins/examples/twitch/) for a step-by-step guide to creating a Twitch integration plugin for G-Assist.
 
 
@@ -167,9 +174,11 @@ The manifest file acts as the bridge between G-Assist and your plugin. G-Assist 
 #### Two Ways to Invoke Plugins:
 
 1. Zero-Shot Function Calling
+
     ```
     /fc What are the top upcoming games for 2025?
     ```
+
     The AI model automatically:
     - Analyzes the user's intent
     - Selects the most appropriate plugin
@@ -177,13 +186,17 @@ The manifest file acts as the bridge between G-Assist and your plugin. G-Assist 
     - Passes any required parameters
 
 2. Direct Plugin Invocation
+
     ```
     Hey logiled, change my keyboard lights to green
     ```
+
     or
+
     ```
     /logiled change my keyboard lights to green
     ```
+
     - User explicitly specifies the plugin
     - AI model determines the appropriate function from the manifest
     - Parameters are extracted from the natural language command
@@ -192,6 +205,7 @@ The manifest file acts as the bridge between G-Assist and your plugin. G-Assist 
 
 ## NVIDIA-Built G-Assist Plugins
 Explore our official plugins:
+- [Blackbox AI Integration](./plugins/examples/blackboxai)
 - [Gemini AI Integration](./plugins/examples/gemini)
 - [Logitech Peripheral Lighting](./plugins/examples/logiled)
 - [Corsair Peripheral Lighting](./plugins/examples/corsair)
