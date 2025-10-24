@@ -35,7 +35,7 @@ cd api/bindings/python
 pip install .
 ```
 
-1. **Chat with G-Assist**
+2. **Chat with G-Assist**
 
 ```python
 from rise import rise
@@ -51,7 +51,7 @@ Response: Your GPU is an NVIDIA GeForce RTX 5090 with a Driver version of 572.83
 """
 ```
 
-1. **Extend G-Assist**
+3. **Extend G-Assist**
 
 > 💡 **Requirements**:
 >
@@ -117,8 +117,7 @@ See our [Twitch Plugin Example Code](./plugins/examples/twitch/) for a step-by-s
   - [NVIDIA Plugin Example - Twitch](#nvidia-plugin-example---twitch)
 - [G-Assist Module Architecture](#g-assist-module-architecture)
 - [Extending G-Assist (Plugins)](#extending-g-assist-plugins)
-  - [What Can You Build?](#what-can-you-build-1)
-  - [Plugin Architecture](#plugin-architecture)
+  - [What Plugins Can You Build?](#what-plugins-can-you-build)
   - [Plugin Integration](#plugin-integration)
 - [NVIDIA-Built G-Assist Plugins](#nvidia-built-g-assist-plugins)
 - [Community-Built Plugins](#community-built-plugins)
@@ -146,7 +145,7 @@ flowchart TD
 
 Transform your ideas into powerful G-Assist plugins! Whether you're a Python developer, C++ enthusiast, or just getting started, our plugin system makes it easy to extend G-Assist's capabilities. Create custom commands, automate tasks, or build entirely new features - the possibilities are endless!
 
-### Plugin Architecture
+### What Plugins Can You Build?
 
 Each plugin lives in its own directory named after the plugin (this name is used to invoke the plugin):
 

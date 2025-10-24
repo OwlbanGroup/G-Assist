@@ -1,5 +1,7 @@
-# TODO: Fix Markdownlint Errors in README.md
-
-- [x] Fix MD029/ol-prefix: Change ordered list prefixes from 2. and 3. to 1. (lines 38 and 54)
-- [x] Fix MD040/fenced-code-language: Add 'text' language specifier to fenced code blocks (lines 86, 100, 182, 194, 200)
-- [x] Fix MD051/link-fragments: Remove leading dashes from link fragments in Table of Contents (lines 112-128)
+- Fix type hint for cwd parameter in run_command method
+- Remove unused import os
+- Change f-string logging to lazy % formatting
+- Define constant for "setup.py" literal
+- Fix line lengths over 100 characters
+- Add docstring to main function
+- Verify fixes with linter
