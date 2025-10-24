@@ -22,9 +22,10 @@ Project G-Assist is built for community expansion. Whether you're a Python devel
 
 If you're looking for inspiration, check out our sample plugins for controling peripheral & smart home lighting, invoking larger AI models like Gemini, managing Spotify tracks, or even checking streamers' online status on Twitch — and then let your own ideas take G-Assist to the next level!
 
-## Quick Start 
+## Quick Start
 
 ### Python Development with G-Assist
+
 Get started quickly using our Python bindings of the [C++ APIs](https://github.com/NVIDIA/nvapi/blob/main/nvapi.h#L25283):
 
 1. **Install the binding locally**
@@ -34,7 +35,7 @@ cd api/bindings/python
 pip install .
 ```
 
-2. **Chat with G-Assist**
+1. **Chat with G-Assist**
 
 ```python
 from rise import rise
@@ -50,10 +51,10 @@ Response: Your GPU is an NVIDIA GeForce RTX 5090 with a Driver version of 572.83
 """
 ```
 
-3. **Extend G-Assist**
-
+1. **Extend G-Assist**
 
 > 💡 **Requirements**:
+>
 > - Python 3.x
 > - G-Assist core services installed
 > - pip package manager
@@ -63,6 +64,7 @@ See our [Python Bindings Guide](./api/bindings/python/README.md) for detailed ex
 ### NVIDIA Plugin Example - Twitch
 
 Try these commands:
+
 - "Hey Twitch, is Ninja live?"
 - "Check if shroud is streaming"
 - "Is pokimane online right now?"
@@ -81,11 +83,12 @@ Started At: 2024-03-14T12:34:56Z
 
 When a streamer is offline:
 
-```
+```text
 ninja is OFFLINE
 ```
 
 #### Key Features
+
 - Secure API credential management
 - OAuth token handling
 - Comprehensive logging system
@@ -94,7 +97,7 @@ ninja is OFFLINE
 
 #### Project Structure
 
-```
+```text
 plugins/twitch/
 ├── manifest.json        # Plugin configuration
 ├── config.json          # Twitch API credentials
@@ -104,25 +107,25 @@ plugins/twitch/
 
 See our [Twitch Plugin Example Code](./plugins/examples/twitch/) for a step-by-step guide to creating a Twitch integration plugin for G-Assist.
 
-
 ## Table of Contents
-- [Project G-Assist Plugins](#-project-g-assist-plugins)
-- [Why Plugins Matter](#-why-plugins-matter)
-- [What Can You Build?](#-what-can-you-build)
-- [Quick Start](#-quick-start)
-  - [Python Development with G-Assist](#-python-development-with-g-assist)
-  - [NVIDIA Plugin Example - Twitch](#-nvidia-plugin-example---twitch)
-- [G-Assist Module Architecture](#-g-assist-module-architecture)
-- [Extending G-Assist (Plugins)](#-extending-g-assist-plugins)
-  - [What Can You Build?](#-what-can-you-build-1)
-  - [Plugin Architecture](#-plugin-architecture)
+
+- [Project G-Assist Plugins](#project-g-assist-plugins)
+- [Why Plugins Matter](#why-plugins-matter)
+- [What Can You Build?](#what-can-you-build)
+- [Quick Start](#quick-start)
+  - [Python Development with G-Assist](#python-development-with-g-assist)
+  - [NVIDIA Plugin Example - Twitch](#nvidia-plugin-example---twitch)
+- [G-Assist Module Architecture](#g-assist-module-architecture)
+- [Extending G-Assist (Plugins)](#extending-g-assist-plugins)
+  - [What Can You Build?](#what-can-you-build-1)
+  - [Plugin Architecture](#plugin-architecture)
   - [Plugin Integration](#plugin-integration)
-- [NVIDIA-Built G-Assist Plugins](#-nvidia-built-g-assist-plugins)
-- [Community-Built Plugins](#-community-built-plugins)
-- [Development Tools](#-development-tools)
-- [Need Help?](#-need-help)
-- [License](#-license)
-- [Contributing](#-contributing)
+- [NVIDIA-Built G-Assist Plugins](#nvidia-built-g-assist-plugins)
+- [Community-Built Plugins](#community-built-plugins)
+- [Development Tools](#development-tools)
+- [Need Help?](#need-help)
+- [License](#license)
+- [Contributing](#contributing)
 
 ## G-Assist Module Architecture
 
@@ -156,26 +159,27 @@ plugins/
 ```
 
 - `g-assist-plugin-<plugin-name>.exe` - Executable file that executes plugin functionality
-- `manifest.json` - Manifest file that contains: 
-    - name of the plugin executable
-    - plugin description
-    - list of functions and their parameters, with descriptions for each
-    - `tags` - array of keywords used to describe the plugin's functionality
-    - `persistent` [true, false] - if the plugin should remain running throughout the entire G-Assist lifecycle 
+- `manifest.json` - Manifest file that contains:
+  - name of the plugin executable
+  - plugin description
+  - list of functions and their parameters, with descriptions for each
+  - `tags` - array of keywords used to describe the plugin's functionality
+  - `persistent` [true, false] - if the plugin should remain running throughout the entire G-Assist lifecycle
 - `config.json` - Config file containing any required information for the plugin (API key, usernames, other specifications) (⚠️ add to `.gitignore`)
 
 > 💡 **Tip**: The plugin directory name is what users will type to invoke your plugin (e.g., "Hey myplugin, do something")
 
 ### Plugin Integration
+
 #### How to Call a Plugin from G-Assist
 
 The manifest file acts as the bridge between G-Assist and your plugin. G-Assist automatically scans the plugin directory to discover available plugins.
 
-#### Two Ways to Invoke Plugins:
+#### Two Ways to Invoke Plugins
 
 1. Zero-Shot Function Calling
 
-    ```
+    ```text
     /fc What are the top upcoming games for 2025?
     ```
 
@@ -187,13 +191,13 @@ The manifest file acts as the bridge between G-Assist and your plugin. G-Assist 
 
 2. Direct Plugin Invocation
 
-    ```
+    ```text
     Hey logiled, change my keyboard lights to green
     ```
 
     or
 
-    ```
+    ```text
     /logiled change my keyboard lights to green
     ```
 
@@ -204,7 +208,9 @@ The manifest file acts as the bridge between G-Assist and your plugin. G-Assist 
 > 💡 **Pro Tip**: Direct plugin invocation is faster when you know exactly which plugin you need!
 
 ## NVIDIA-Built G-Assist Plugins
+
 Explore our official plugins:
+
 - [Blackbox AI Integration](./plugins/examples/blackboxai)
 - [Gemini AI Integration](./plugins/examples/gemini)
 - [Logitech Peripheral Lighting](./plugins/examples/logiled)
@@ -215,7 +221,9 @@ Explore our official plugins:
 - [More coming soon!]
 
 ## Community-Built Plugins
+
 Check out what others have built:
+
 - [Your Plugin Here] - Submit your plugin using a pull request! We welcome contributions that:
   - Follow our [contribution guidelines](CONTRIBUTING.md)
   - Include proper documentation and examples
@@ -223,14 +231,18 @@ Check out what others have built:
   - Add unique value to the ecosystem
 
 ## Development Tools
+
 - [Python Bindings](./api/bindings/python/)
 - [ChatGPT-powered Plugin Builder](./plugins/plugin-builder/)
 
 ## Need Help?
+
 - Report issues on [GitHub](https://github.com/nvidia/g-assist)
 
 ## License
+
 This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
 
 ## Contributing
+
 We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.

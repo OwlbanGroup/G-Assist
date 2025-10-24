@@ -1,23 +1,5 @@
-# G-Assist Blackwell/Blackbox AI Integration Tasks
+# TODO: Fix Markdownlint Errors in README.md
 
-## Documentation Updates
-- [x] Update main README.md to mention Blackwell GPU support
-- [x] Update Python binding README.md examples to reflect Blackwell GPUs
-- [x] Add Blackwell architecture notes in relevant docs
-
-## Code Updates
-- [x] Verify NVAPI compatibility with Blackwell GPUs (should be automatic)
-- [x] Update example responses to include Blackwell GPU models
-- [x] Check plugin examples for any GPU-specific code
-- [x] Create Blackbox AI plugin for G-Assist
-
-## Testing
-- [x] Test Python binding with Blackwell GPU (if available)
-- [ ] Verify plugin functionality on Blackwell systems
-- [ ] Update any hardcoded GPU references
-- [ ] Test Blackbox AI plugin integration
-
-## Completion
-- [x] Ensure all references to RTX are updated to include Blackwell
-- [x] Validate integration works end-to-end
-- [x] Add Blackbox AI to NVIDIA-Built G-Assist Plugins list
+- [x] Fix MD029/ol-prefix: Change ordered list prefixes from 2. and 3. to 1. (lines 38 and 54)
+- [x] Fix MD040/fenced-code-language: Add 'text' language specifier to fenced code blocks (lines 86, 100, 182, 194, 200)
+- [x] Fix MD051/link-fragments: Remove leading dashes from link fragments in Table of Contents (lines 112-128)
