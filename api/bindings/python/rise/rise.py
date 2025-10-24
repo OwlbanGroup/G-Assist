@@ -1,10 +1,10 @@
 """
 G-Assist (RISE) Python Binding Module
 
-This module provides a Python interface to the RISE (Runtime Inference System Engine) API.
-It handles communication with the RISE backend through a DLL/shared library interface,
-manages asynchronous callbacks, and provides a simplified interface for sending commands
-and receiving responses.
+This module provides a Python interface to the RISE (Runtime Inference System Engine) API
+for RTX and Blackwell GPUs. It handles communication with the RISE backend through a
+DLL/shared library interface, manages asynchronous callbacks, and provides a simplified
+interface for sending commands and receiving responses.
 
 The module includes:
 - Content type enumerations for RISE communication

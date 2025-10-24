@@ -1,6 +1,6 @@
 # G-Assist Python Binding
 
-Transform your Python applications into powerful AI-enabled experiences with G-Assist! This binding makes it incredibly easy to integrate G-Assist's capabilities into your Python projects. We've abstracted away the complexity of state machines and callbacks, making everything beautifully synchronous and straightforward.
+Transform your Python applications into powerful AI-enabled experiences with G-Assist! This binding makes it incredibly easy to integrate G-Assist's capabilities into your Python projects on RTX and Blackwell GPUs. We've abstracted away the complexity of state machines and callbacks, making everything beautifully synchronous and straightforward.
 
 ## What Can It Do?
 - Send commands to G-Assist and receive responses with just a few lines of code

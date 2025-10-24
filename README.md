@@ -1,12 +1,12 @@
 # Project G-Assist Plugins
 
-Project G-Assist is an experimental on-device AI Assistant that helps RTX users control a broad range of PC settings, from optimizing game and system settings, charting frame rates and other key performance statistics, to controlling select peripheral lighting — all via basic voice or text commands.
+Project G-Assist is an experimental on-device AI Assistant that helps RTX and Blackwell users control a broad range of PC settings, from optimizing game and system settings, charting frame rates and other key performance statistics, to controlling select peripheral lighting — all via basic voice or text commands.
 
 Project G-Assist is built for community expansion. Whether you're a Python developer, C++ enthusiast, or just getting started — its Plugin architecture makes it easy to define new commands for G-Assist to execute. We can't wait to see what the community dreams up!
 
 ## Why Plugins Matter
 
-- Leverage a responsive Small Language Model (SLM) running locally on your own RTX GPU
+- Leverage a responsive Small Language Model (SLM) running locally on your own RTX or Blackwell GPU
 - Extend and customize G-Assist with functionality that enhances your PC experience
 - Interact with G-Assist from the NVIDIA Overlay without needing to tab out or switch programs
 - Invoke AI-powered GPU and system controls in your applications using C++ and python bindings
