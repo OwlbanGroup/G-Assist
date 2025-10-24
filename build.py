@@ -21,13 +21,14 @@ import shutil
 import argparse
 from pathlib import Path
 import logging
-from typing import Optional
+from typing import Optional, Union
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
 logger = logging.getLogger(__name__)
 
 SETUP_PY = "setup.py"
+
 
 class Builder:
     """Main build system for G-Assist."""
@@ -37,7 +38,8 @@ class Builder:
         self.build_dir = self.root_dir / build_dir
         self.build_dir.mkdir(exist_ok=True)
 
-    def run_command(self, cmd: list, cwd: Optional[Path] = None, check: bool = True) -> bool:
+    def run_command(self, cmd: list, cwd: Optional[Union[str, Path]] = None,
+                    check: bool = True) -> bool:
         """Run a shell command and return success status."""
         try:
             logger.info("Running: %s", ' '.join(cmd))
@@ -63,8 +65,7 @@ class Builder:
             # Try to build with MSBuild
             sln_file = python_dir / "python_binding.sln"
             if sln_file.exists() and not self.run_command(
-                ["MSBuild", str(sln_file), "/p:Configuration=Release"],
-                cwd=python_dir
+                ["MSBuild", str(sln_file), "/p:Configuration=Release"], cwd=python_dir
             ):
                 logger.warning("MSBuild failed, trying alternative build methods")
 
@@ -94,10 +95,12 @@ class Builder:
         logger.info("Building plugin: %s", plugin_name)
 
         # Check for build script
-        build_script = plugin_dir / "build.bat" if sys.platform == "win32" else plugin_dir / "build.sh"
+        build_script = (plugin_dir / "build.bat" if sys.platform == "win32"
+                        else plugin_dir / "build.sh")
         if build_script.exists() and (
             (sys.platform == "win32" and self.run_command([str(build_script)], cwd=plugin_dir)) or
-            (sys.platform != "win32" and self.run_command(["bash", str(build_script)], cwd=plugin_dir))
+            (sys.platform != "win32" and self.run_command(["bash", str(build_script)],
+                                                          cwd=plugin_dir))
         ):
             return True
 
@@ -114,7 +117,7 @@ class Builder:
                                      str(requirements)], cwd=plugin_dir)
 
         # No build system found - assume it's ready
-        logger.info("No build system found for %s, assuming pre-built", plugin_name)
+        logger.info("No build system found %s, assuming pre-built", plugin_name)
         return True
 
     def build_plugins(self) -> bool:
@@ -146,16 +149,16 @@ class Builder:
         # Install requirements
         requirements = core_dir / "requirements.txt"
         if requirements.exists():
-            if not self.run_command([sys.executable, "-m", "pip", "install", "-r",
-                                     str(requirements)], cwd=core_dir):
+            pip_cmd = [sys.executable, "-m", "pip", "install", "-r", str(requirements)]
+            if not self.run_command(pip_cmd, cwd=core_dir):
                 logger.error("Failed to install core requirements")
                 return False
 
         # Check for setup.py
         setup_py = core_dir / SETUP_PY
         if setup_py.exists():
-            if not self.run_command([sys.executable, SETUP_PY, "build"],
-                                    cwd=core_dir):
+            build_cmd = [sys.executable, SETUP_PY, "build"]
+            if not self.run_command(build_cmd, cwd=core_dir):
                 logger.error("Failed to build core")
                 return False
 
@@ -209,6 +212,7 @@ class Builder:
         logger.info("Clean completed")
         return True
 
+
 def main():
     """Main entry point for the build script."""
     parser = argparse.ArgumentParser(description="G-Assist Build System")
@@ -216,7 +220,7 @@ def main():
                        choices=["core", "plugins", "python", "all", "clean"],
                        help="Component to build")
     parser.add_argument("--clean", action="store_true",
-                       help="Clean build artifacts before building")
+                        help="Clean build artifacts before building")
 
     args = parser.parse_args()
 

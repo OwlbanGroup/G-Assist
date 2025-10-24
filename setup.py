@@ -10,8 +10,11 @@ from pathlib import Path
 
 try:
     from setuptools import setup, find_packages
-except ImportError:
-    raise ImportError("setuptools is required to install G-Assist. Please install it with: pip install setuptools")
+except ImportError as exc:
+    raise ImportError(
+        "setuptools is required to install G-Assist. "
+        "Please install it with: pip install setuptools"
+    ) from exc
 
 # Read the README
 this_directory = Path(__file__).parent

@@ -35,7 +35,7 @@ cd api/bindings/python
 pip install .
 ```
 
-2. **Chat with G-Assist**
+1. **Chat with G-Assist**
 
 ```python
 from rise import rise
@@ -51,7 +51,7 @@ Response: Your GPU is an NVIDIA GeForce RTX 5090 with a Driver version of 572.83
 """
 ```
 
-3. **Extend G-Assist**
+1. **Extend G-Assist**
 
 > 💡 **Requirements**:
 >

@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# pylint: disable=invalid-name
+
 """
 G-Assist Core System
 
@@ -48,7 +50,9 @@ class PluginManager:
         """Get the default plugins directory based on the system."""
         if sys.platform == 'win32':
             program_data = os.environ.get('PROGRAMDATA', 'C:\\ProgramData')
-            return Path(program_data) / 'NVIDIA Corporation' / 'nvtopps' / 'rise' / 'plugins'
+            program_data_path = Path(program_data)
+            return (program_data_path / 'NVIDIA Corporation' /
+                    'nvtopps' / 'rise' / 'plugins')
         else:
             # For Linux/macOS, use a user directory
             home = Path.home()
@@ -131,7 +135,7 @@ class PluginManager:
 
             return True
 
-        except Exception as e:
+        except (OSError, subprocess.SubprocessError) as e:
             logger.error("Failed to start plugin %s: %s", plugin_name, e)
             return False
 
@@ -174,55 +178,63 @@ class PluginManager:
             logger.warning("Plugin %s did not terminate gracefully, killing...", plugin_name)
             process.kill()
             return True
-        except Exception as e:
+        except OSError as e:
             logger.error("Error stopping plugin %s: %s", plugin_name, e)
             return False
 
     def invoke_plugin(self, plugin_name: str, function_name: str, params: Optional[Dict[str, Any]] = None) -> Optional[Dict[str, Any]]:
         """Invoke a function on a plugin."""
+        if not self._ensure_plugin_running(plugin_name):
+            return None
+
+        if not self._check_function_exists(plugin_name, function_name):
+            return None
+
+        command = self._prepare_command(function_name, params)
+        return self._send_and_receive(plugin_name, command)
+
+    def _ensure_plugin_running(self, plugin_name: str) -> bool:
+        """Ensure the plugin is running, start if necessary."""
         if plugin_name not in self.running_plugins:
             logger.warning("Plugin %s is not running, attempting to start...", plugin_name)
-            if not self.start_plugin(plugin_name):
-                return None
+            return self.start_plugin(plugin_name)
+        return True
 
+    def _check_function_exists(self, plugin_name: str, function_name: str) -> bool:
+        """Check if the function exists in the plugin manifest."""
         manifest = self.plugin_manifests.get(plugin_name)
         if not manifest:
-            return None
+            return False
 
-        # Check if the function exists in the manifest
         functions = manifest.get('functions', [])
-        function_info = None
         for func in functions:
             if func.get('name') == function_name:
-                function_info = func
-                break
+                return True
+        logger.error("Function %s not found in plugin %s", function_name, plugin_name)
+        return False
 
-        if not function_info:
-            logger.error("Function %s not found in plugin %s", function_name, plugin_name)
-            return None
-
-        # Prepare the command
-        command = {
+    def _prepare_command(self, function_name: str, params: Optional[Dict[str, Any]]) -> dict:
+        """Prepare the command dictionary."""
+        return {
             "tool_calls": [{
                 "func": function_name,
                 "properties": params or {}
             }]
         }
 
-        # Send command to plugin
+    def _send_and_receive(self, plugin_name: str, command: dict) -> Optional[Dict[str, Any]]:
+        """Send command to plugin and receive response."""
         process = self.running_plugins[plugin_name]
         if not process.stdin:
             logger.error("No stdin available for plugin %s", plugin_name)
             return None
 
         try:
-            # Send the command
             command_json = json.dumps(command) + '\n'
             process.stdin.write(command_json)
             process.stdin.flush()
             logger.debug("Sent command to %s: %s", plugin_name, command_json.strip())
 
-            # Read response (this is simplified - in practice you'd need proper async handling)
             if process.stdout is not None:
                 response_line = process.stdout.readline().strip()
                 if response_line:
@@ -236,7 +248,7 @@ class PluginManager:
                 logger.error("No stdout available for plugin %s", plugin_name)
                 return None
 
-        except Exception as e:
+        except (json.JSONDecodeError, OSError) as e:
             logger.error("Error communicating with plugin %s: %s", plugin_name, e)
             return None
 
@@ -273,7 +285,7 @@ class PluginManager:
     def shutdown(self):
         """Shutdown all running plugins."""
         logger.info("Shutting down all plugins...")
-        for plugin_name in self.running_plugins.keys():
+        for plugin_name in self.running_plugins:
             self.stop_plugin(plugin_name)
         logger.info("All plugins shut down")
 
@@ -360,7 +372,7 @@ class GAssistCore:
         else:
             return self._handle_unknown_command(command, params or {})
 
-    def _handle_list_plugins(self, params: dict) -> dict:
+    def _handle_list_plugins(self, _params: dict) -> dict:
         """Handle list_plugins command."""
         plugins = self.plugin_manager.list_plugins()
         return {
@@ -419,10 +431,10 @@ class GAssistCore:
         else:
             return {
                 'success': False,
-                'error': 'Failed to invoke %s on plugin %s' % (function_name, plugin_name)
+                'error': f'Failed to invoke {function_name} on plugin {plugin_name}'
             }
 
-    def _handle_get_gpu_info(self, params: dict) -> dict:
+    def _handle_get_gpu_info(self, _params: dict) -> dict:
         """Handle get_gpu_info command."""
         gpu_info = self.gpu_manager.get_gpu_info()
         return {
@@ -430,7 +442,7 @@ class GAssistCore:
             'gpu_info': gpu_info
         }
 
-    def _handle_shutdown(self, params: dict) -> dict:
+    def _handle_shutdown(self, _params: dict) -> dict:
         """Handle shutdown command."""
         self.stop()
         return {
@@ -438,33 +450,28 @@ class GAssistCore:
             'message': 'G-Assist Core shutting down'
         }
 
-    def _handle_unknown_command(self, command: str, params: Optional[Dict[str, Any]]) -> dict:
+    def _handle_unknown_command(self, command: str, _params: Optional[Dict[str, Any]]) -> dict:
         """Handle unknown commands."""
         return {
             'success': False,
-            'error': 'Unknown command: %s' % command
+            'error': f'Unknown command: {command}'
         }
 
 
-def main():
-    """Main entry point for G-Assist Core."""
+def _parse_args():
+    """Parse command line arguments."""
     parser = argparse.ArgumentParser(description='G-Assist Core System')
     parser.add_argument('--plugins-dir', help='Directory containing plugins')
     parser.add_argument('--log-level', choices=['DEBUG', 'INFO', 'WARNING', 'ERROR'],
                        default='INFO', help='Logging level')
     parser.add_argument('--daemon', action='store_true',
                        help='Run as daemon/background process')
+    return parser.parse_args()
 
-    args = parser.parse_args()
 
-    # Set log level
-    logging.getLogger().setLevel(getattr(logging, args.log_level))
-
-    # Create core instance
-    core = GAssistCore(args.plugins_dir)
-
-    # Handle signals for graceful shutdown
-    def signal_handler(signum, frame):
+def _setup_signal_handlers(core):
+    """Set up signal handlers for graceful shutdown."""
+    def signal_handler(signum, _frame):
         logger.info("Received signal %s, shutting down...", signum)
         core.stop()
         sys.exit(0)
@@ -472,82 +479,114 @@ def main():
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
 
+
+def _run_daemon(core):
+    """Run the core in daemon mode."""
+    logger.info("Running as daemon...")
+    while core.running:
+        time.sleep(1)
+
+
+def _run_interactive(core):
+    """Run the core in interactive mode."""
+    print("G-Assist Core started. Type 'help' for commands, 'quit' to exit.")
+
+    while core.running:
+        try:
+            command_line = input("G-Assist> ").strip()
+            if not command_line:
+                continue
+
+            if command_line.lower() in ['quit', 'exit', 'q']:
+                break
+
+            if command_line.lower() == 'help':
+                _print_help()
+                continue
+
+            # Parse and process command
+            result = _parse_and_process_command(core, command_line)
+            _display_result(result)
+
+        except KeyboardInterrupt:
+            break
+        except (ValueError, OSError) as e:
+            logger.error("Error processing command: %s", e)
+            print("Error: %s", e)
+
+
+def _print_help():
+    """Print available commands."""
+    print("Available commands:")
+    print("  list_plugins - List all available plugins")
+    print("  start_plugin <name> - Start a plugin")
+    print("  stop_plugin <name> - Stop a plugin")
+    print("  invoke_plugin <plugin> <function> - Invoke a plugin function")
+    print("  get_gpu_info - Get GPU information")
+    print("  help - Show this help")
+    print("  quit - Exit")
+
+
+def _parse_and_process_command(core, command_line):
+    """Parse command line and process it."""
+    parts = command_line.split()
+    command = parts[0]
+    params = {}
+
+    if command == 'start_plugin' and len(parts) > 1:
+        params = {'plugin_name': parts[1]}
+    elif command == 'stop_plugin' and len(parts) > 1:
+        params = {'plugin_name': parts[1]}
+    elif command == 'invoke_plugin' and len(parts) > 2:
+        params = {
+            'plugin_name': parts[1],
+            'function_name': parts[2]
+        }
+
+    return core.process_command(command, params)
+
+
+def _display_result(result):
+    """Display command result to user."""
+    if result['success']:
+        if 'plugins' in result:
+            print("Available plugins:")
+            for plugin in result['plugins']:
+                status = "RUNNING" if plugin['running'] else "STOPPED"
+                print(f"  {plugin['name']} - {plugin['description']} [{status}]")
+        elif 'gpu_info' in result:
+            gpu_info = result['gpu_info']
+            print("GPU Information:")
+            for key, value in gpu_info.items():
+                print(f"  {key}: {value}")
+        elif 'result' in result:
+            print(f"Result: {result['result']}")
+        else:
+            print("Command executed successfully")
+    else:
+        print(f"Error: {result.get('error', 'Unknown error')}")
+
+
+def main():
+    """Main entry point for G-Assist Core."""
+    args = _parse_args()
+
+    # Set log level
+    logging.getLogger().setLevel(getattr(logging, args.log_level))
+
+    # Create core instance
+    core = GAssistCore(args.plugins_dir)
+    _setup_signal_handlers(core)
+
     try:
-        # Start the core system
         core.start()
 
         if args.daemon:
-            # Run as daemon - keep running until signal received
-            logger.info("Running as daemon...")
-            while core.running:
-                time.sleep(1)
+            _run_daemon(core)
         else:
-            # Interactive mode - simple command loop
-            print("G-Assist Core started. Type 'help' for commands, 'quit' to exit.")
+            _run_interactive(core)
 
-            while core.running:
-                try:
-                    command_line = input("G-Assist> ").strip()
-                    if not command_line:
-                        continue
-
-                    if command_line.lower() in ['quit', 'exit', 'q']:
-                        break
-
-                    if command_line.lower() == 'help':
-                        print("Available commands:")
-                        print("  list_plugins - List all available plugins")
-                        print("  start_plugin <name> - Start a plugin")
-                        print("  stop_plugin <name> - Stop a plugin")
-                        print("  invoke_plugin <plugin> <function> - Invoke a plugin function")
-                        print("  get_gpu_info - Get GPU information")
-                        print("  help - Show this help")
-                        print("  quit - Exit")
-                        continue
-
-                    # Parse command
-                    parts = command_line.split()
-                    command = parts[0]
-                    params = {}
-
-                    if command == 'start_plugin' and len(parts) > 1:
-                        params = {'plugin_name': parts[1]}
-                    elif command == 'stop_plugin' and len(parts) > 1:
-                        params = {'plugin_name': parts[1]}
-                    elif command == 'invoke_plugin' and len(parts) > 2:
-                        params = {
-                            'plugin_name': parts[1],
-                            'function_name': parts[2]
-                        }
-
-                    # Process command
-                    result = core.process_command(command, params)
-
-                    if result['success']:
-                        if 'plugins' in result:
-                            print("Available plugins:")
-                            for plugin in result['plugins']:
-                                status = "RUNNING" if plugin['running'] else "STOPPED"
-                                print(f"  {plugin['name']} - {plugin['description']} [{status}]")
-                        elif 'gpu_info' in result:
-                            gpu_info = result['gpu_info']
-                            print("GPU Information:")
-                            for key, value in gpu_info.items():
-                                print(f"  {key}: {value}")
-                        elif 'result' in result:
-                            print(f"Result: {result['result']}")
-                        else:
-                            print("Command executed successfully")
-                    else:
-                        print(f"Error: {result.get('error', 'Unknown error')}")
-
-                except KeyboardInterrupt:
-                    break
-                except Exception as e:
-                    logger.error("Error processing command: %s", e)
-                    print("Error: %s", e)
-
-    except Exception as e:
+    except (ValueError, OSError) as e:
         logger.error("Error in main: %s", e)
         print("Error: %s", e)
     finally:

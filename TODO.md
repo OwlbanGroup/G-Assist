@@ -1,7 +1,1 @@
-- Fix type hint for cwd parameter in run_command method
-- Remove unused import os
-- Change f-string logging to lazy % formatting
-- Define constant for "setup.py" literal
-- Fix line lengths over 100 characters
-- Add docstring to main function
-- Verify fixes with linter
+e
