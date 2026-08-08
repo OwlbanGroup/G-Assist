@@ -252,6 +252,7 @@ class Builder:
         for build in self.root_dir.rglob("build"):
             if build != self.build_dir:
                 self._remove_dir(build, REMOVE_FAILED_MSG)
+
         logger.info("Clean completed")
         return True
 
