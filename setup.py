@@ -9,7 +9,7 @@ import os
 from pathlib import Path
 
 try:
-    from setuptools import setup, find_packages
+    from setuptools import find_packages, setup
 except ImportError as exc:
     raise ImportError(
         "setuptools is required to install G-Assist. "
@@ -18,7 +18,7 @@ except ImportError as exc:
 
 # Read the README
 this_directory = Path(__file__).parent
-long_description = (this_directory / "README.md").read_text()
+long_description = (this_directory / "README.md").read_text(encoding="utf-8")
 
 # Core dependencies
 install_requires = [
@@ -27,7 +27,7 @@ install_requires = [
 ]
 
 # Platform-specific dependencies
-if os.name == 'nt':  # Windows
+if os.name == "nt":  # Windows
     install_requires.append("pywin32>=302")
 
 setup(
@@ -39,21 +39,9 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/nvidia/g-assist",
-    packages=find_packages(),
-    classifiers=[
-        "Development Status :: 3 - Alpha",
-        "Intended Audience :: Developers",
-        "License :: OSI Approved :: Apache Software License",
-        "Operating System :: Microsoft :: Windows",
-        "Operating System :: POSIX :: Linux",
-        "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.9",
-        "Programming Language :: Python :: 3.10",
-        "Programming Language :: Python :: 3.11",
-        "Topic :: Scientific/Engineering :: Artificial Intelligence",
-        "Topic :: System :: Hardware",
-    ],
+    packages=find_packages(exclude=["tests", "tests.*", "plugins.*"]),
+    include_package_data=True,
+    zip_safe=False,
     python_requires=">=3.8",
     install_requires=install_requires,
     extras_require={
@@ -75,6 +63,18 @@ setup(
             "g-assist=core.g_assist_core:main",
         ],
     },
-    include_package_data=True,
-    zip_safe=False,
+    classifiers=[
+        "Development Status :: 3 - Alpha",
+        "Intended Audience :: Developers",
+        "License :: OSI Approved :: Apache Software License",
+        "Operating System :: Microsoft :: Windows",
+        "Operating System :: POSIX :: Linux",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+        "Topic :: Scientific/Engineering :: Artificial Intelligence",
+        "Topic :: System :: Hardware",
+    ],
 )
