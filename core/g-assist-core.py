@@ -4,9 +4,10 @@
 """
 G-Assist Core System
 
-The main executable for G-Assist, a plugin-based AI assistant for RTX and Blackwell GPUs.
-This system manages plugin loading, communication, and provides the core functionality
-for interacting with NVIDIA GPUs and running AI workloads.
+The main executable for G-Assist, a plugin-based AI assistant for RTX and
+Blackwell GPUs. This system manages plugin loading, communication, and
+provides the core functionality for interacting with NVIDIA GPUs and running
+AI workloads.
 
 Author: NVIDIA Corporation
 License: Apache 2.0
@@ -40,7 +41,7 @@ logger = logging.getLogger("g-assist-core")
 class PluginManager:
     """Manages loading and communication with G-Assist plugins."""
 
-    def __init__(self, plugins_dir: Optional[str] = None):
+    def __init__(self, plugins_dir: Optional[str] = None) -> None:
         self.plugins_dir = (
             Path(plugins_dir) if plugins_dir else self._get_default_plugins_dir()
         )
@@ -89,8 +90,8 @@ class PluginManager:
                 self.plugin_manifests[plugin_name] = manifest
             logger.info("Loaded manifest for plugin: %s", plugin_name)
             return manifest
-        except (FileNotFoundError, json.JSONDecodeError, PermissionError) as e:
-            logger.error("Failed to load manifest for plugin %s: %s", plugin_name, e)
+        except (FileNotFoundError, json.JSONDecodeError, PermissionError):
+            logger.exception("Failed to load manifest for plugin %s", plugin_name)
             return None
 
     def start_plugin(self, plugin_name: str) -> bool:
@@ -109,7 +110,8 @@ class PluginManager:
             executable = manifest.get("executable")
             if not executable:
                 logger.error(
-                    "No executable specified in manifest for plugin %s", plugin_name
+                    "No executable specified in manifest for plugin %s",
+                    plugin_name,
                 )
                 return False
 
@@ -132,8 +134,8 @@ class PluginManager:
                 )
                 self.running_plugins[plugin_name] = process
                 logger.info("Started plugin: %s (PID: %s)", plugin_name, process.pid)
-            except (OSError, subprocess.SubprocessError) as e:
-                logger.error("Failed to start plugin %s: %s", plugin_name, e)
+            except (OSError, subprocess.SubprocessError):
+                logger.exception("Failed to start plugin %s", plugin_name)
                 return False
 
         # Start the monitor thread outside the lock so it can read the pipes.
@@ -146,7 +148,8 @@ class PluginManager:
         return True
 
     def _monitor_plugin(self, plugin_name: str) -> None:
-        """Monitor a plugin process, draining its stdout/stderr and logging output."""
+        """Monitor a plugin process, draining its stdout/stderr and
+        logging output."""
         with self._lock:
             process = self.running_plugins.get(plugin_name)
         if process is None:
@@ -157,8 +160,8 @@ class PluginManager:
         try:
             for line in process.stdout or ():
                 logger.debug("Plugin %s output: %s", plugin_name, line.strip())
-        except (OSError, ValueError) as e:
-            logger.error("Error reading plugin %s stdout: %s", plugin_name, e)
+        except (OSError, ValueError):
+            logger.exception("Error reading plugin %s stdout", plugin_name)
 
         # Drain stderr after stdout closes.
         for line in process.stderr or ():
@@ -187,13 +190,14 @@ class PluginManager:
             return True
         except subprocess.TimeoutExpired:
             logger.warning(
-                "Plugin %s did not terminate gracefully, killing...", plugin_name
+                "Plugin %s did not terminate gracefully, killing...",
+                plugin_name,
             )
             process.kill()
             process.wait(timeout=5)
             return True
-        except OSError as e:
-            logger.error("Error stopping plugin %s: %s", plugin_name, e)
+        except OSError:
+            logger.exception("Error stopping plugin %s", plugin_name)
             return False
 
     def invoke_plugin(
@@ -217,13 +221,15 @@ class PluginManager:
         with self._lock:
             if plugin_name not in self.running_plugins:
                 logger.warning(
-                    "Plugin %s is not running, attempting to start...", plugin_name
+                    "Plugin %s is not running, attempting to start...",
+                    plugin_name,
                 )
                 return self.start_plugin(plugin_name)
         return True
 
     def _check_function_exists(self, plugin_name: str, function_name: str) -> bool:
-        """Check if the function exists in the plugin manifest."""
+        """Check if the function exists in the plugin
+        manifest."""
         with self._lock:
             manifest = self.plugin_manifests.get(plugin_name)
         if not manifest:
@@ -266,8 +272,8 @@ class PluginManager:
             response = json.loads(response_line)
             logger.debug("Received response from %s: %s", plugin_name, response)
             return response
-        except (json.JSONDecodeError, OSError, ValueError) as e:
-            logger.error("Error communicating with plugin %s: %s", plugin_name, e)
+        except (OSError, ValueError):
+            logger.exception("Error communicating with plugin %s", plugin_name)
             return None
 
     def get_plugin_info(self, plugin_name: str) -> Optional[Dict[str, Any]]:
@@ -310,7 +316,7 @@ class PluginManager:
 class GPUManager:
     """Manages GPU information and monitoring."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.gpu_info: Dict[str, Any] = {}
         self._load_gpu_info()
 
@@ -365,13 +371,17 @@ class GPUManager:
 
     def get_system_info(self) -> dict:
         """Get system information including GPU details."""
-        return {"gpu": self.gpu_info, "os": sys.platform, "python_version": sys.version}
+        return {
+            "gpu": self.gpu_info,
+            "os": sys.platform,
+            "python_version": sys.version,
+        }
 
 
 class GAssistCore:
     """Main G-Assist core system."""
 
-    def __init__(self, plugins_dir: Optional[str] = None):
+    def __init__(self, plugins_dir: Optional[str] = None) -> None:
         self.plugin_manager = PluginManager(plugins_dir)
         self.gpu_manager = GPUManager()
         self.running = False
@@ -424,7 +434,10 @@ class GAssistCore:
         """Handle start_plugin command."""
         plugin_name = params.get("plugin_name")
         if not plugin_name:
-            return {"success": False, "error": "plugin_name parameter required"}
+            return {
+                "success": False,
+                "error": "plugin_name parameter required",
+            }
         success = self.plugin_manager.start_plugin(plugin_name)
         return {"success": success, "plugin_name": plugin_name}
 
@@ -432,7 +445,10 @@ class GAssistCore:
         """Handle stop_plugin command."""
         plugin_name = params.get("plugin_name")
         if not plugin_name:
-            return {"success": False, "error": "plugin_name parameter required"}
+            return {
+                "success": False,
+                "error": "plugin_name parameter required",
+            }
         success = self.plugin_manager.stop_plugin(plugin_name)
         return {"success": success, "plugin_name": plugin_name}
 
@@ -455,7 +471,7 @@ class GAssistCore:
             return {"success": True, "result": result}
         return {
             "success": False,
-            "error": f"Failed to invoke {function_name} on plugin {plugin_name}",
+            "error": (f"Failed to invoke {function_name} on plugin {plugin_name}"),
         }
 
     def _handle_get_gpu_info(self, _params: dict) -> dict:
@@ -483,7 +499,9 @@ def _parse_args() -> argparse.Namespace:
         help="Logging level",
     )
     parser.add_argument(
-        "--daemon", action="store_true", help="Run as daemon/background process"
+        "--daemon",
+        action="store_true",
+        help="Run as daemon/background process",
     )
     return parser.parse_args()
 
@@ -530,7 +548,7 @@ def _run_interactive(core: GAssistCore) -> None:
         except KeyboardInterrupt:
             break
         except (EOFError, ValueError, OSError) as e:
-            logger.error("Error processing command: %s", e)
+            logger.exception("Error processing command")
             print(f"Error: {e}")
 
 
@@ -565,21 +583,26 @@ def _parse_and_process_command(core: GAssistCore, command_line: str) -> dict:
 def _display_result(result: dict) -> None:
     """Display command result to user."""
     if result.get("success"):
-        if "plugins" in result:
-            print("Available plugins:")
-            for plugin in result["plugins"]:
-                status = "RUNNING" if plugin["running"] else "STOPPED"
-                print(f"  {plugin['name']} - {plugin['description']} [{status}]")
-        elif "gpu_info" in result:
-            print("GPU Information:")
-            for key, value in result["gpu_info"].items():
-                print(f"  {key}: {value}")
-        elif "result" in result:
-            print(f"Result: {result['result']}")
-        else:
-            print("Command executed successfully")
+        _display_success(result)
     else:
         print(f"Error: {result.get('error', 'Unknown error')}")
+
+
+def _display_success(result: dict) -> None:
+    """Display successful command result."""
+    if "plugins" in result:
+        print("Available plugins:")
+        for plugin in result["plugins"]:
+            status = "RUNNING" if plugin["running"] else "STOPPED"
+            print(f"  {plugin['name']} - {plugin['description']} [{status}]")
+    elif "gpu_info" in result:
+        print("GPU Information:")
+        for key, value in result["gpu_info"].items():
+            print(f"  {key}: {value}")
+    elif "result" in result:
+        print(f"Result: {result['result']}")
+    else:
+        print("Command executed successfully")
 
 
 def main() -> None:
@@ -598,7 +621,7 @@ def main() -> None:
         else:
             _run_interactive(core)
     except (ValueError, OSError) as e:
-        logger.error("Error in main: %s", e)
+        logger.exception("Error in main")
         print(f"Error: {e}")
     finally:
         core.stop()
