@@ -75,28 +75,9 @@ class Builder:
 
         # Check if Visual Studio is available (Windows)
         if sys.platform == "win32":
-            sln_file = python_dir / "python_binding.sln"
-            if sln_file.exists():
-                if self.run_command(
-                    ["MSBuild", str(sln_file), "/p:Configuration=Release"],
-                    cwd=python_dir,
-                ):
-                    logger.info("Python bindings built with MSBuild")
-                    return True
-                logger.warning("MSBuild failed, trying alternative build methods")
-            else:
-                logger.info("No .sln found, using setuptools build")
-
-            setup_py = python_dir / SETUP_PY
-            if setup_py.exists():
-                if self.run_command(
-                    [sys.executable, SETUP_PY, "build_ext", "--inplace"],
-                    cwd=python_dir,
-                ):
-                    logger.info("Python bindings built with setuptools")
-                    return True
-                logger.error("Failed to build Python bindings")
-                return False
+            result = self._build_windows_bindings(python_dir)
+            if result is not None:
+                return result
 
         # Install Python package
         if not self.run_command(
@@ -108,6 +89,37 @@ class Builder:
 
         logger.info("Python bindings built successfully")
         return True
+
+    def _build_windows_bindings(self, python_dir: Path) -> Optional[bool]:
+        """Build Windows bindings using MSBuild or setuptools.
+
+        Returns True on success, False on failure, or None if no
+        Windows-specific build was performed.
+        """
+        sln_file = python_dir / "python_binding.sln"
+        if sln_file.exists():
+            if self.run_command(
+                ["MSBuild", str(sln_file), "/p:Configuration=Release"],
+                cwd=python_dir,
+            ):
+                logger.info("Python bindings built with MSBuild")
+                return True
+            logger.warning("MSBuild failed, trying alternative build methods")
+        else:
+            logger.info("No .sln found, using setuptools build")
+
+        setup_py = python_dir / SETUP_PY
+        if setup_py.exists():
+            if self.run_command(
+                [sys.executable, SETUP_PY, "build_ext", "--inplace"],
+                cwd=python_dir,
+            ):
+                logger.info("Python bindings built with setuptools")
+                return True
+            logger.error("Failed to build Python bindings")
+            return False
+
+        return None
 
     def build_plugin(self, plugin_dir: Path) -> bool:
         """Build a single plugin."""
