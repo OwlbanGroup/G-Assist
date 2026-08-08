@@ -28,6 +28,7 @@ logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
 
 SETUP_PY = "setup.py"
+REMOVE_FAILED_MSG = "Could not remove %s: %s"
 
 
 class Builder:
@@ -55,8 +56,8 @@ class Builder:
                 logger.info("In directory: %s", cwd)
             result = subprocess.run(cmd, cwd=cwd or self.root_dir, check=check)
             return result.returncode == 0
-        except subprocess.CalledProcessError as e:
-            logger.error("Command failed: %s", e)
+        except subprocess.CalledProcessError:
+            logger.exception("Command failed")
             return False
         except FileNotFoundError:
             logger.error("Command not found: %s", cmd[0])
@@ -194,6 +195,20 @@ class Builder:
         logger.info("Core system built successfully")
         return True
 
+    def _remove_path(self, path: Path, message: str) -> None:
+        """Remove a single file, logging a warning on failure."""
+        try:
+            path.unlink()
+        except OSError as e:
+            logger.warning(message, path, e)
+
+    def _remove_dir(self, path: Path, message: str) -> None:
+        """Remove a directory tree, logging a warning on failure."""
+        try:
+            shutil.rmtree(path)
+        except OSError as e:
+            logger.warning(message, path, e)
+
     def build_all(self) -> bool:
         """Build everything."""
         logger.info("Building all components...")
@@ -227,29 +242,16 @@ class Builder:
 
         # Clean Python bytecode
         for pyc in self.root_dir.rglob("*.pyc"):
-            try:
-                pyc.unlink()
-            except OSError as e:
-                logger.warning("Could not remove %s: %s", pyc, e)
+            self._remove_path(pyc, REMOVE_FAILED_MSG)
         for pycache in self.root_dir.rglob("__pycache__"):
-            try:
-                shutil.rmtree(pycache)
-            except OSError as e:
-                logger.warning("Could not remove %s: %s", pycache, e)
+            self._remove_dir(pycache, REMOVE_FAILED_MSG)
 
         # Clean dist directories
         for dist in self.root_dir.rglob("dist"):
-            try:
-                shutil.rmtree(dist)
-            except OSError as e:
-                logger.warning("Could not remove %s: %s", dist, e)
+            self._remove_dir(dist, REMOVE_FAILED_MSG)
         for build in self.root_dir.rglob("build"):
             if build != self.build_dir:
-                try:
-                    shutil.rmtree(build)
-                except OSError as e:
-                    logger.warning("Could not remove %s: %s", build, e)
-
+                self._remove_dir(build, REMOVE_FAILED_MSG)
         logger.info("Clean completed")
         return True
 
