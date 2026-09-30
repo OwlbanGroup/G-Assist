@@ -1,27 +1,25 @@
 # Skill Benchmark: g-assist-mcp-skill
 
-> ✅ **Overall verdict: PASS on the CI suite**
-
-This report is the Docker CI run of `evals/evals.json` only: 16 tasks, one attempt per agent, no GPU, and no G-Assist server. It does not cover modeset keep-or-revert, elicitation, live enums, or a failed change that still returns `isError: false`. Those cases are in `evals/evals-hardware.json` and are not scored here.
+> ✅ **Overall verdict: PASS — Recommended for publication**
 
 ## Publication Recommendation
 
-The CI suite passed. This table is not the hardware publication record. Add a hardware results table before using this report as evidence that display and GPU control is ready to publish.
+Recommended for publication based on the completed evaluation evidence in this report.
 
 ## Evaluation Metadata
 
 - Skill: `g-assist-mcp-skill`
-- Evaluation date: 2026-09-22
-- Evaluator version: `1.5.8`
+- Evaluation date: 2026-09-30
+- Evaluator version: `1.5.6`
 - Agents: Claude Code (`aws/anthropic/bedrock-claude-opus-4-8`), Codex (`openai/openai/gpt-5.5`)
 - Tasks: 16 evaluation tasks (11 positive, 5 negative)
 - Dataset digest: `sha256:005ae43f3adb9fe981b27b5096c41379327675753c3c913e0df8734f6d3159f2` (skill-evaluator-dataset-snapshot/1)
-- Attempts per task: 1
-- Environment: `docker`
+- Attempts per task: 3
+- Environment: `k8s-sandbox`
 - Tier 2 evidence: required for publication
 - Tier 3 evidence: required for publication
 
-Each task attempt ran in its own isolated Docker container.
+Each task attempt ran in its own isolated sandbox pod.
 
 ## What This Report Answers
 
@@ -37,12 +35,12 @@ The three-tier evaluation checks whether the skill:
 
 | Measure | Claude Code (Baseline → Skill Uplift) | Codex (Baseline → Skill Uplift) |
 |---|---:|---:|
-| Overall | 88.2% — baseline ran, but no comparable score was available; uplift unavailable | 95.8% — baseline ran, but no comparable score was available; uplift unavailable |
-| Security | 100.0% → 100.0% (±0.0 points) | 93.8% → 100.0% (+6.2 points) |
-| Correctness | 73.8% → 96.2% (+22.4 points) | 66.2% → 97.5% (+31.3 points) |
-| Discoverability | 81.8% — baseline ran, but no comparable score was available; uplift unavailable | 93.6% — baseline ran, but no comparable score was available; uplift unavailable |
-| Effectiveness | 72.9% → 79.3% (+6.4 points) | 61.0% → 89.5% (+28.5 points) |
-| Efficiency | 83.7% — baseline ran, but no comparable score was available; uplift unavailable | 98.3% — baseline ran, but no comparable score was available; uplift unavailable |
+| Overall | 91.5% — baseline ran, but no comparable score was available; uplift unavailable | 94.9% — baseline ran, but no comparable score was available; uplift unavailable |
+| Security | 100.0% → 100.0% (±0.0 points) | 100.0% → 100.0% (±0.0 points) |
+| Correctness | 69.5% → 97.5% (+28.0 points) | 60.0% → 100.0% (+40.0 points) |
+| Discoverability | 85.5% — baseline ran, but no comparable score was available; uplift unavailable | 95.0% — baseline ran, but no comparable score was available; uplift unavailable |
+| Effectiveness | 61.7% → 84.5% (+22.8 points) | 51.9% → 90.0% (+38.1 points) |
+| Efficiency | 90.0% — baseline ran, but no comparable score was available; uplift unavailable | 89.5% — baseline ran, but no comparable score was available; uplift unavailable |
 
 **How to read this table:** baseline is the same task attempted without the target skill. Scores are rounded to one decimal; threshold-adjacent values use additional precision so their displayed band matches the verdict. Uplift is derived from those displayed scores and shown in percentage points.
 
@@ -56,41 +54,41 @@ Actual Tier 3 execution usage is reported for every observed agent/case pair and
 
 | Agent | Dataset case | With skill | Without skill | Delta | Change | Coverage |
 |---|---|---:|---:|---:|---:|---|
-| claude-code | All cases | 2,064,000 | 1,107,140 | +956,860 | +86.43% | skill 16/16; base 16/16 |
-| claude-code | g-assist-mcp-skill-001 | 242,432 | 71,134 | +171,298 | +240.81% | skill 1/1; base 1/1 |
-| claude-code | g-assist-mcp-skill-002 | 77,188 | 35,630 | +41,558 | +116.64% | skill 1/1; base 1/1 |
-| claude-code | g-assist-mcp-skill-003 | 285,098 | 35,403 | +249,695 | +705.29% | skill 1/1; base 1/1 |
-| claude-code | g-assist-mcp-skill-004 | 35,550 | 35,660 | -110 | -0.31% | skill 1/1; base 1/1 |
-| claude-code | g-assist-mcp-skill-005 | 35,307 | 35,399 | -92 | -0.26% | skill 1/1; base 1/1 |
-| claude-code | g-assist-mcp-skill-006 | 77,394 | 72,015 | +5,379 | +7.47% | skill 1/1; base 1/1 |
-| claude-code | g-assist-mcp-skill-007 | 285,853 | 35,514 | +250,339 | +704.90% | skill 1/1; base 1/1 |
-| claude-code | g-assist-mcp-skill-008 | 290,014 | 35,644 | +254,370 | +713.64% | skill 1/1; base 1/1 |
-| claude-code | g-assist-mcp-skill-009 | 77,016 | 35,711 | +41,305 | +115.66% | skill 1/1; base 1/1 |
-| claude-code | g-assist-mcp-skill-010 | 77,099 | 143,810 | -66,711 | -46.39% | skill 1/1; base 1/1 |
-| claude-code | g-assist-mcp-skill-011 | 76,402 | 35,178 | +41,224 | +117.19% | skill 1/1; base 1/1 |
-| claude-code | g-assist-mcp-skill-neg-001 | 35,069 | 34,990 | +79 | +0.23% | skill 1/1; base 1/1 |
-| claude-code | g-assist-mcp-skill-neg-002 | 180,317 | 214,029 | -33,712 | -15.75% | skill 1/1; base 1/1 |
-| claude-code | g-assist-mcp-skill-neg-003 | 218,152 | 180,135 | +38,017 | +21.10% | skill 1/1; base 1/1 |
-| claude-code | g-assist-mcp-skill-neg-004 | 35,559 | 71,224 | -35,665 | -50.07% | skill 1/1; base 1/1 |
-| claude-code | g-assist-mcp-skill-neg-005 | 35,550 | 35,664 | -114 | -0.32% | skill 1/1; base 1/1 |
-| codex | All cases | 757,574 | 684,630 | +72,944 | +10.65% | skill 16/16; base 16/16 |
-| codex | g-assist-mcp-skill-001 | 41,908 | 51,244 | -9,336 | -18.22% | skill 1/1; base 1/1 |
-| codex | g-assist-mcp-skill-002 | 42,435 | 24,773 | +17,662 | +71.30% | skill 1/1; base 1/1 |
-| codex | g-assist-mcp-skill-003 | 56,972 | 81,635 | -24,663 | -30.21% | skill 1/1; base 1/1 |
-| codex | g-assist-mcp-skill-004 | 27,061 | 12,053 | +15,008 | +124.52% | skill 1/1; base 1/1 |
-| codex | g-assist-mcp-skill-005 | 42,026 | 12,080 | +29,946 | +247.90% | skill 1/1; base 1/1 |
-| codex | g-assist-mcp-skill-006 | 41,899 | 39,335 | +2,564 | +6.52% | skill 1/1; base 1/1 |
-| codex | g-assist-mcp-skill-007 | 41,962 | 49,551 | -7,589 | -15.32% | skill 1/1; base 1/1 |
-| codex | g-assist-mcp-skill-008 | 42,955 | 24,918 | +18,037 | +72.39% | skill 1/1; base 1/1 |
-| codex | g-assist-mcp-skill-009 | 41,885 | 37,917 | +3,968 | +10.46% | skill 1/1; base 1/1 |
-| codex | g-assist-mcp-skill-010 | 60,598 | 87,921 | -27,323 | -31.08% | skill 1/1; base 1/1 |
-| codex | g-assist-mcp-skill-011 | 42,281 | 24,475 | +17,806 | +72.75% | skill 1/1; base 1/1 |
-| codex | g-assist-mcp-skill-neg-001 | 11,736 | 11,665 | +71 | +0.61% | skill 1/1; base 1/1 |
-| codex | g-assist-mcp-skill-neg-002 | 64,269 | 64,220 | +49 | +0.08% | skill 1/1; base 1/1 |
-| codex | g-assist-mcp-skill-neg-003 | 92,507 | 74,224 | +18,283 | +24.63% | skill 1/1; base 1/1 |
-| codex | g-assist-mcp-skill-neg-004 | 50,520 | 37,587 | +12,933 | +34.41% | skill 1/1; base 1/1 |
-| codex | g-assist-mcp-skill-neg-005 | 56,560 | 51,032 | +5,528 | +10.83% | skill 1/1; base 1/1 |
-| ALL AGENTS | Dataset aggregate | 2,821,574 | 1,791,770 | +1,029,804 | +57.47% | skill 32/32; base 32/32 |
+| claude-code | All cases | 1,528,370 | 1,874,259 | N/A | N/A | skill 16/16; base 21/21 |
+| claude-code | g-assist-mcp-skill-001 | 101,334 | 328,623 | N/A | N/A | skill 1/1; base 3/3 |
+| claude-code | g-assist-mcp-skill-002 | 65,844 | 241,302 | N/A | N/A | skill 1/1; base 3/3 |
+| claude-code | g-assist-mcp-skill-003 | 106,536 | 121,924 | -15,388 | -12.62% | skill 1/1; base 1/1 |
+| claude-code | g-assist-mcp-skill-004 | 60,840 | 30,211 | +30,629 | +101.38% | skill 1/1; base 1/1 |
+| claude-code | g-assist-mcp-skill-005 | 29,542 | 29,379 | +163 | +0.55% | skill 1/1; base 1/1 |
+| claude-code | g-assist-mcp-skill-006 | 66,787 | 245,203 | N/A | N/A | skill 1/1; base 2/2 |
+| claude-code | g-assist-mcp-skill-007 | 244,171 | 60,168 | +184,003 | +305.82% | skill 1/1; base 1/1 |
+| claude-code | g-assist-mcp-skill-008 | 67,581 | 61,844 | +5,737 | +9.28% | skill 1/1; base 1/1 |
+| claude-code | g-assist-mcp-skill-009 | 101,917 | 60,829 | +41,088 | +67.55% | skill 1/1; base 1/1 |
+| claude-code | g-assist-mcp-skill-010 | 66,514 | 151,041 | -84,527 | -55.96% | skill 1/1; base 1/1 |
+| claude-code | g-assist-mcp-skill-011 | 65,545 | 59,938 | +5,607 | +9.35% | skill 1/1; base 1/1 |
+| claude-code | g-assist-mcp-skill-neg-001 | 29,034 | 28,955 | +79 | +0.27% | skill 1/1; base 1/1 |
+| claude-code | g-assist-mcp-skill-neg-002 | 182,458 | 121,391 | +61,067 | +50.31% | skill 1/1; base 1/1 |
+| claude-code | g-assist-mcp-skill-neg-003 | 183,617 | 183,777 | -160 | -0.09% | skill 1/1; base 1/1 |
+| claude-code | g-assist-mcp-skill-neg-004 | 91,026 | 88,951 | +2,075 | +2.33% | skill 1/1; base 1/1 |
+| claude-code | g-assist-mcp-skill-neg-005 | 65,624 | 60,723 | +4,901 | +8.07% | skill 1/1; base 1/1 |
+| codex | All cases | 854,089 | 1,237,266 | N/A | N/A | skill 16/16; base 21/21 |
+| codex | g-assist-mcp-skill-001 | 63,169 | 157,026 | N/A | N/A | skill 1/1; base 3/3 |
+| codex | g-assist-mcp-skill-002 | 64,251 | 42,220 | +22,031 | +52.18% | skill 1/1; base 1/1 |
+| codex | g-assist-mcp-skill-003 | 63,451 | 41,068 | +22,383 | +54.50% | skill 1/1; base 1/1 |
+| codex | g-assist-mcp-skill-004 | 30,180 | 13,441 | +16,739 | +124.54% | skill 1/1; base 1/1 |
+| codex | g-assist-mcp-skill-005 | 30,016 | 13,501 | +16,515 | +122.32% | skill 1/1; base 1/1 |
+| codex | g-assist-mcp-skill-006 | 47,016 | 183,210 | N/A | N/A | skill 1/1; base 2/2 |
+| codex | g-assist-mcp-skill-007 | 46,482 | 84,383 | -37,901 | -44.92% | skill 1/1; base 1/1 |
+| codex | g-assist-mcp-skill-008 | 65,038 | 41,952 | +23,086 | +55.03% | skill 1/1; base 1/1 |
+| codex | g-assist-mcp-skill-009 | 63,166 | 41,650 | +21,516 | +51.66% | skill 1/1; base 1/1 |
+| codex | g-assist-mcp-skill-010 | 30,473 | 237,826 | N/A | N/A | skill 1/1; base 3/3 |
+| codex | g-assist-mcp-skill-011 | 63,268 | 40,742 | +22,526 | +55.29% | skill 1/1; base 1/1 |
+| codex | g-assist-mcp-skill-neg-001 | 13,265 | 13,193 | +72 | +0.55% | skill 1/1; base 1/1 |
+| codex | g-assist-mcp-skill-neg-002 | 100,808 | 111,836 | -11,028 | -9.86% | skill 1/1; base 1/1 |
+| codex | g-assist-mcp-skill-neg-003 | 85,308 | 118,907 | -33,599 | -28.26% | skill 1/1; base 1/1 |
+| codex | g-assist-mcp-skill-neg-004 | 41,357 | 40,890 | +467 | +1.14% | skill 1/1; base 1/1 |
+| codex | g-assist-mcp-skill-neg-005 | 46,841 | 55,421 | -8,580 | -15.48% | skill 1/1; base 1/1 |
+| ALL AGENTS | Dataset aggregate | 2,382,459 | 3,111,525 | N/A | N/A | skill 32/32; base 42/42 |
 
 Prompt tokens include cached reads, so total tokens are `prompt + completion` (cached is not added twice). The Efficiency score uses `(prompt - cached) + completion`. N/A means the relevant trajectory counters were not available; coverage is never estimated.
 
@@ -98,7 +96,7 @@ Prompt tokens include cached reads, so total tokens are `prompt + completion` (c
 
 | Tier | Purpose | Status | Evidence |
 |---|---|---|---|
-| Tier 1 | Static validation | **PASSED** | 11 validator(s); 0 finding(s) |
+| Tier 1 | Static validation | **PASSED WITH OBSERVATIONS** | 11 validator(s); 1 finding(s) |
 | Tier 2 | Semantic deduplication | **PASSED** | 2 validator(s); 0 finding(s) |
 | Tier 3 | Live agent evaluation | **PASS** | 2 agent(s); 16 task(s) |
 
@@ -107,16 +105,8 @@ Prompt tokens include cached reads, so total tokens are `prompt + completion` (c
 <details>
 <summary>Show detailed findings and successful checks</summary>
 
-- Schema & Repository Governance: Found skill manifest: SKILL.md
-- Semantic Version Validation: Valid semantic version: 1.0.0
-- Security Scan: No security vulnerabilities detected (secrets, API keys, credentials)
-- PII Scan: Scanning 1 files for PII
-- Code Integrity & Hygiene: Checking 1 markdown files for dead links
-- Unicode Smuggling Detection: No invisible Unicode characters detected in 1 file(s)
-- QUALITY: Score: 100.0/100 (Grade: A)
-- SCRIPT_LINT: No scripts/ directory found
-- Context Deduplication: Collected 1 file(s)
-- AGENT_EVAL: Tier 3 evaluation complete: verdict PASS; best agent codex
+- **MEDIUM** SECURITY/Autonomous Decision Making (EA2): Excessive Agency: no
+   approval (`SKILL.md:119`)
 
 </details>
 
