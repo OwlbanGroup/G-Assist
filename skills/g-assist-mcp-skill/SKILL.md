@@ -126,7 +126,7 @@ hosts use an `mcpServers` map like this:
    (background services, inter-process pipes, driver APIs, or engine internals).
    If the user asks "what is G-Assist" or "how does it work," answer only at a
    high level: it's NVIDIA's way to control GPU and display settings through these
-   tools.
+   tools. 
 
 ## Matching a request to a tool
 
