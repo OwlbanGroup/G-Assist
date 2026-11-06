@@ -9,6 +9,7 @@ Transform your ideas into functional G-Assist plugins with AI-powered guidance. 
 - **Validate structure** - Ensures manifest functions match code decorators
 - **Provide setup commands** - Ready-to-run commands for deployment
 - **Automate SDK patterns** - Protocol V2 (JSON-RPC), streaming, passthrough mode, setup wizards
+- **Generate from the CLI** - `generator.py` turns a spec into a complete, in-sync plugin package
 
 ## Getting Started with Cursor
 
@@ -99,6 +100,73 @@ You can create plugins for:
 - Smart home control (lights, switches, sensors)
 - Custom data fetching (stocks, APIs)
 - Gaming peripherals (RGB lighting, macros)
+
+## Alternative: Command-Line Generator
+If you prefer a scriptable, non-interactive workflow, use `generator.py`. It turns a declarative spec into a complete, Protocol V2 plugin package (`plugin.py`, `manifest.json`, `requirements.txt`, `config.json`) where the manifest and code are guaranteed to be in sync.
+
+### Quick Start
+```bash
+# Generate from command-line flags
+python generator.py --name my-weather-plugin \
+    --desc "Fetches weather for a city" \
+    --cmd "get_weather:string:Get the weather for a city" \
+    --cmd "set_units:string:Set temperature units" \
+    --out ./my-weather-plugin
+```
+
+Each `--cmd` uses the format `name:type[:description[:default]]`, where `type` is one of `string`, `integer`, `number`, `boolean`, `array`, or `object`. A parameter without a default is marked as required in the manifest.
+
+### Generate from a JSON Spec
+For richer plugins (multiple parameters, tags, streaming, passthrough), use a spec file:
+
+```json
+{
+  "name": "hue-lights",
+  "version": "1.0.0",
+  "description": "Control Philips Hue lights",
+  "commands": [
+    {
+      "name": "set_brightness",
+      "description": "Set the brightness of a room",
+      "tags": ["lights", "hue"],
+      "parameters": [
+        {"name": "percent", "type": "integer", "description": "0-100", "required": true},
+        {"name": "room", "type": "string", "description": "Room name", "default": "living room"}
+      ]
+    },
+    {
+      "name": "start_chat",
+      "description": "Chat about your lighting setup",
+      "passthrough": true,
+      "streaming": true
+    }
+  ]
+}
+```
+
+```bash
+python generator.py --spec spec.json --out ./hue-lights
+```
+
+### What the Generator Does
+- **Validates the spec** - rejects invalid identifiers, unknown types, duplicate commands/parameters, and the reserved `on_input` name
+- **Generates matching code and manifest** - every `@plugin.command()` has a manifest entry, and vice versa
+- **Adds passthrough support** - emits an `on_input` handler automatically when any command sets `"passthrough": true`
+- **Uses portable paths** - `%PROGRAMDATA%` on Windows, XDG data dir elsewhere, so generated plugins run on Linux/macOS too
+- **Refuses to clobber** - existing files are only overwritten with `--force`
+
+### Validate an Existing Plugin
+Keep an existing plugin's code and manifest in sync (ideal for CI or after manual edits):
+
+```bash
+python generator.py --validate ./my-weather-plugin
+```
+
+It reports manifest functions with no matching `@plugin.command()`, commands missing from the manifest, and leftover template markers, exiting non-zero on any problem.
+
+In `--cmd` mode, write the parameter name as `<name>` in the description to control what the generated parameter is called, e.g. `--cmd "get_weather:string:Get weather for <city>"`. For commands with several parameters, use `--spec`.
+
+Run `python generator.py --help` for all options.
 
 ## Alternative: GPT Plugin Builder
 

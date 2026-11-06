@@ -1,0 +1,17 @@
+{
+  "version": "0.2",
+  "language": "en",
+  "words": ["gassist", "nvtopps", "PROGRAMDATA", "nvapi", "rise", "pycache"],
+  "ignorePaths": [
+    "**/node_modules/**",
+    "**/libs/**",
+    "**/__pycache__/**",
+    "**/*.gif",
+    "**/*.png",
+    "**/*.jpg",
+    "**/*.exe",
+    "**/*.dll",
+    "**/*.lib",
+    "**/*.pdb"
+  ]
+}

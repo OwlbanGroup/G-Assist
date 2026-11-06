@@ -1,0 +1,3 @@
+# G-Assist Plugin Builder - Generated Plugin Dependencies
+# These packages are pip-installed to libs/ by setup.bat
+# The G-Assist SDK (gassist_sdk) is copied separately from the SDK folder.
