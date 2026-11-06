@@ -1,0 +1,210 @@
+{
+  "evals": [
+    {
+      "name": "generate_from_cmd_spec",
+      "description": "Generate a plugin from a flat --cmd spec with one command and confirm the package is written and valid.",
+      "positive": [
+        {
+          "cmd": "python3 /workspaces/G-Assist/skills/plugin-builder-skill/generator.py --name test-a --desc 'A test plugin' --cmd 'get_weather:string:Get current weather for <city>' --out /tmp/eval_plugin_test_a",
+          "expected_exit": 0,
+          "checks": [
+            {
+              "file": "test_a",
+              "cond": "exists"
+            },
+            {
+              "file": "test_a/plugin.py",
+              "cond": "exists"
+            },
+            {
+              "file": "test_a/manifest.json",
+              "cond": "exists"
+            }
+          ]
+        }
+      ],
+      "negative": []
+    },
+    {
+      "name": "validate_sync",
+      "description": "Generate a plugin then validate that manifest and code are in sync.",
+      "positive": [
+        {
+          "cmd": "rm -rf /tmp/eval_plugin_valid && python3 /workspaces/G-Assist/skills/plugin-builder-skill/generator.py --name test-b --desc 'A valid plugin' --cmd 'count:string:Count to <n>' --out /tmp/eval_plugin_valid && python3 /workspaces/G-Assist/skills/plugin-builder-skill/generator.py --validate /tmp/eval_plugin_valid",
+          "expected_exit": 0,
+          "checks": [
+            {
+              "file": "output",
+              "cond": "contains",
+              "pattern": "manifest and plugin.py are in sync"
+            }
+          ]
+        }
+      ],
+      "negative": []
+    },
+    {
+      "name": "reject_python_keyword_command",
+      "description": "Generate a plugin with 'class' as a command name; generator must exit non-zero.",
+      "negative": [
+        {
+          "cmd": "python3 /workspaces/G-Assist/skills/plugin-builder-skill/generator.py --name test-c --desc 'A plugin' --cmd 'class:string:Do something' --out /tmp/eval_plugin_test_c",
+          "expected_exit": 1,
+          "checks": [
+            {
+              "file": "stderr",
+              "cond": "contains",
+              "pattern": "Python keyword"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "generate_from_spec_file",
+      "description": "Generate a plugin from a JSON spec file with multiple parameters per command.",
+      "positive": [
+        {
+          "cmd": "python3 /workspaces/G-Assist/skills/plugin-builder-skill/generator.py --spec /tmp/test_spec.json --out /tmp/eval_plugin_spec && python3 /workspaces/G-Assist/skills/plugin-builder-skill/generator.py --validate /tmp/eval_plugin_spec",
+          "expected_exit": 0,
+          "checks": [
+            {
+              "file": "output",
+              "cond": "contains",
+              "pattern": "are in sync"
+            }
+          ]
+        }
+      ],
+      "negative": []
+    },
+    {
+      "name": "validate_tampered_manifest",
+      "description": "Generate a plugin, remove a function from the manifest, and confirm --validate exits non-zero.",
+      "negative": [
+        {
+          "cmd": "rm -rf /tmp/eval_plugin_tamper && python3 /workspaces/G-Assist/skills/plugin-builder-skill/generator.py --name test-d --desc 'Tampered' --cmd 'a:string:cmd a' --cmd 'b:string:cmd b' --out /tmp/eval_plugin_tamper && python3 -c \"import json; m=json.load(open('/tmp/eval_plugin_tamper/manifest.json')); m['functions']=m['functions'][:1]; json.dump(m, open('/tmp/eval_plugin_tamper/manifest.json','w'), indent=2)\" && python3 /workspaces/G-Assist/skills/plugin-builder-skill/generator.py --validate /tmp/eval_plugin_tamper",
+          "expected_exit": 1,
+          "checks": [
+            {
+              "file": "stdout",
+              "cond": "contains",
+              "pattern": "1 problem"
+            },
+            {
+              "file": "stdout",
+              "cond": "contains",
+              "pattern": "no matching command handler"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "generate_with_streaming",
+      "description": "Generate a plugin with streaming: true and confirm passthrough handling.",
+      "positive": [
+        {
+          "cmd": "rm -rf /tmp/eval_plugin_stream && python3 /workspaces/G-Assist/skills/plugin-builder-skill/generator.py --name test-stream --desc 'A streaming plugin' --cmd 'long_op:string:Run a long operation' --cmd 'streaming_op:string:An operation with streaming' --cmd 'chat:string:Start a chat' --out /tmp/eval_plugin_stream",
+          "expected_exit": 0,
+          "checks": [
+            {
+              "file": "test-stream/plugin.py",
+              "cond": "exists"
+            },
+            {
+              "cmd": "grep -c 'stream(' test-stream/plugin.py",
+              "expected_exit": 0
+            },
+            {
+              "file": "test-stream/manifest.json",
+              "cond": "exists"
+            }
+          ]
+        }
+      ],
+      "negative": []
+    },
+    {
+      "name": "generate_with_passthrough",
+      "description": "Generate a plugin with passthrough: true and confirm an on_input handler is emitted.",
+      "positive": [
+        {
+          "cmd": "rm -rf /tmp/eval_plugin_pt && python3 /workspaces/G-Assist/skills/plugin-builder-skill/generator.py --name test-pt --desc 'A passthrough plugin' --cmd 'chat:string:Start a chat' --cmd 'respond:string:Reply to a message' --out /tmp/eval_plugin_pt",
+          "expected_exit": 0,
+          "checks": [
+            {
+              "file": "test-pt/plugin.py",
+              "cond": "exists"
+            },
+            {
+              "cmd": "grep -c 'on_input' test-pt/plugin.py",
+              "expected_exit": 0
+            },
+            {
+              "cmd": "grep -c 'set_keep_session' test-pt/plugin.py",
+              "expected_exit": 0
+            }
+          ]
+        }
+      ],
+      "negative": []
+    },
+    {
+      "name": "reject_invalid_type",
+      "description": "Generate a plugin with an invalid type and confirm the generator exits non-zero.",
+      "negative": [
+        {
+          "cmd": "python3 /workspaces/G-Assist/skills/plugin-builder-skill/generator.py --name test-type --desc 'A plugin' --cmd 'bad_cmd:invalid_type:Description' --out /tmp/eval_plugin_type",
+          "expected_exit": 1,
+          "checks": [
+            {
+              "file": "stderr",
+              "cond": "contains",
+              "pattern": "Unsupported property type"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "reject_duplicate_parameter",
+      "description": "Generate a plugin with duplicate parameters in a command and confirm non-zero exit.",
+      "negative": [
+        {
+          "cmd": "python3 /workspaces/G-Assist/skills/plugin-builder-skill/generator.py --name test-dup --desc 'A plugin' --cmd 'dup_cmd:string:Do two params:string:hello' --out /tmp/eval_plugin_dup",
+          "expected_exit": 1,
+          "checks": [
+            {
+              "file": "stderr",
+              "cond": "contains",
+              "pattern": "Duplicate parameter"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "validate_generated_spec_package",
+      "description": "Generate from a JSON spec file in a temp directory and validate the package.",
+      "positive": [
+        {
+          "cmd": "python3 -c \"import json; spec={'name':'spec-y','description':'A spec plugin','commands':[{'name':'hello','description':'Say hello','parameters':[{'name':'name','type':'string','description':'Name to greet'}]}]}; json.dump(spec, open('/tmp/spec_y.json','w'))\" && python3 /workspaces/G-Assist/skills/plugin-builder-skill/generator.py --spec /tmp/spec_y.json --out /tmp/eval_spec_y && python3 /workspaces/G-Assist/skills/plugin-builder-skill/generator.py --validate /tmp/eval_spec_y",
+          "expected_exit": 0,
+          "checks": [
+            {
+              "file": "output",
+              "cond": "contains",
+              "pattern": "are in sync"
+            },
+            {
+              "file": "test-y/manifest.json",
+              "cond": "exists"
+            }
+          ]
+        }
+      ],
+      "negative": []
+    }
+  ]
+}
